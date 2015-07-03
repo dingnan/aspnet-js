@@ -360,3 +360,18 @@ blockquote em, blockquote i, blockquote cite {
 	padding: 0 0 1.625em;
 	position: relative;
 }
+
+
+.message {
+    background-color: #eff7fa;
+    border: solid 1px;
+    color: #caa452;
+    font-size: 1.3em;
+    padding: 10px;
+}
+
+
+.approved {
+    background-color: #c6efce;
+    color: #006100;
+}
