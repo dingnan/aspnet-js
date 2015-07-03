@@ -84,12 +84,9 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
 
     function loadCustomerInfo() {
         
-        $.getJSON(settings.webApiUrl + '/data/customer.json', function (json) {
-            console.log(json); // this will show the info it in firebug console
-        });
         var d = $q.defer();
         //Get Customer Data 
-        var url = settings.webApiUrl + '/data/customer.json';
+        var url = settings.webApiUrl + '/api/customer';
         $http.get(url).then(function (response) {
             if (response.data == 'null') {
                 model.user = null;
