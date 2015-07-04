@@ -375,3 +375,7 @@ blockquote em, blockquote i, blockquote cite {
     background-color: #c6efce;
     color: #006100;
 }
+
+.cart {
+    cursor: pointer;
+}

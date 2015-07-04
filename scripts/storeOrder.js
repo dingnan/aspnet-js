@@ -47,7 +47,7 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
      */
 
     var sortBy = [
-        { id: 0, desc: 'Featured' },
+        { id: 0, desc: 'Rating' },
         { id: 1, desc: 'Price: Low to High' },
         { id: 1, desc: 'Price: High to Low' }
     ];
@@ -109,9 +109,20 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
         return d.promise;
     }
 
+    function loadMockCustomerInfo() {
+
+        var d = $q.defer();
+        setTimeout(function() {
+            model.user = mock.getCustomer();
+            d.resolve();
+        }, 100);
+
+        return d.promise;
+    }
+    
     function loadCustomerOrderHistory() {
         var d = $q.defer();
-        var url = settings.webApiUrl + '/api/customer/orderHistory';
+        var url = settings.webApiUrl + '/api/orderHistory';
         $http.get(url).then(function (response) {
             if (response.data == 'null')
                 model.orders = [];
@@ -129,9 +140,29 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
         return d.promise;
     }
 
+    function loadMockCustomerOrderHistory() {
+
+        var d = $q.defer();
+        setTimeout(function() {
+            model.user = mock.getCustomerOrderHistory();
+            d.resolve();
+        }, 200);
+
+        return d.promise;
+    }
+
     function loadCustomer() {
         var p1 = loadCustomerInfo();
         var p2 = loadCustomerOrderHistory();
+
+        return $q.all([p1, p2]);
+    }
+    
+    function loadMockCustomer() {
+        // use mock data for now :)
+        var p1 = loadMockCustomerInfo();
+        var p2 = loadMockCustomerOrderHistory();
+
         return $q.all([p1, p2]);
     }
 
@@ -149,8 +180,20 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
             model.messages.push(
                 { type: 'danger', msg: reason.statusText }
             );
+
             d.reject();
         });
+
+        return d.promise;
+    }
+    
+    function loadMockProductList() {
+
+        var d = $q.defer();
+        setTimeout(function() {
+            model.products = mock.getProducts();
+            d.resolve();
+        }, 150);
 
         return d.promise;
     }
@@ -164,29 +207,25 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
         messages: []
     };
 
-    var q1 = loadProductList();
-    var q2 = $q.when(model);
-    var q3 = loadCustomer();
+    // use mock data for now :)
+    // var q1 = loadProductList();
+    var q1 = loadMockProductList();
+    
+    var q2 = $q.when(model);    
+    var q3 = loadMockCustomer();
 
     return $q.all([q1, q2, q3]);
 }]);
-
-storeApp.controller('AlertCtrl', ['$scope', 'storeOrderModel',
-    function ($scope, storeOrderModel) {
-        storeOrderModel.then(function (data) {
-            $scope.alerts = data[1].messages;
-
-            $scope.closeAlert = function (index) {
-                $scope.alerts.splice(index, 1);
-            };
-        });
-    }
-]);
 
 storeApp.controller("productListController", ['$scope', '$http', 'storeOrderModel',
     function ($scope, $http, storeOrderModel) {
         storeOrderModel.then(function (data) {
             $scope.model = data[1];
+            $scope.productFirstRow = $scope.model.products.slice(0, 4);
+            $scope.productSecondRow = $scope.model.products.slice(4, 8);
+            $scope.addToCart = function(product) {
+                $scope.model.orderItems.push(product);
+            };
         });
     }
 ]);
@@ -197,10 +236,13 @@ storeApp.controller("shoppingCartController", ['$scope', '$http', 'storeOrderMod
 
             $scope.model = results[1];
 
-            $scope.checkout = function () {
-                // checkout process
-                // charge credit card
-                // confirm shipping address
+            $scope.totalPrice = function () {
+                var total = 0;
+                $scope.model.orderItems.forEach(function (item) {
+                    total += item.price;
+                });
+
+                return total;
             };
         });
     }
