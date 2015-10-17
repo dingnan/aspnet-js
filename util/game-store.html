@@ -54,12 +54,12 @@
             <div data-ng-view=""></div>
             <script type="text/ng-template" id="productList.html">
                 <div class="col-lg-12" style="min-height: 100px;">
-	                <div class="row" ng-if="model.orderItems.length">
+	                <div class="row">
                         <div class="col-md-3 col-md-offset-2">
                             <b>{{model.orderItems.length}}</b><span> items in shopping cart.</span>                            
                         </div>
                         <div class="col-md-2">                            
-                            <a href="#/shoppingCart" class="btn btn-primary"><span>Proceed to checkout</span><i class="glyphicon glyphicon-shopping-cart" style="margin-left: 5px"></i></a>
+                            <a href="#/shoppingCart" class="btn btn-primary" ng-disabled="!model.orderItems.length"><span>Proceed to checkout</span><i class="glyphicon glyphicon-shopping-cart" style="margin-left: 5px"></i></a>
                         </div>
                     </div>
 	                <div class="row">
