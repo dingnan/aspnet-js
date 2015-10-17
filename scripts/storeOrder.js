@@ -224,7 +224,11 @@ storeApp.controller("productListController", ['$scope', '$http', 'storeOrderMode
             $scope.productFirstRow = $scope.model.products.slice(0, 4);
             $scope.productSecondRow = $scope.model.products.slice(4, 8);
             $scope.addToCart = function(product) {
-                $scope.model.orderItems.push(product);
+                $scope.model.orderItems.push({
+                    id: product.id,
+                    title: product.title,
+                    price: product.price
+                });
             };
         });
     }

@@ -53,8 +53,8 @@
         <div class="row" ng-app="storeApp" ng-cloak>
             <div data-ng-view=""></div>
             <script type="text/ng-template" id="productList.html">
-                <div class="col-lg-12" ng-if="model.orderItems.length">
-	                <div class="row">
+                <div class="col-lg-12" style="min-height: 100px;">
+	                <div class="row" ng-if="model.orderItems.length">
                         <div class="col-md-3 col-md-offset-2">
                             <b>{{model.orderItems.length}}</b><span> items in shopping cart.</span>                            
                         </div>
@@ -114,8 +114,8 @@
                 </div>            
             </script>
             <script type="text/ng-template" id="shoppingCart.html">
-                <div class="col-lg-12" ng-if="model.orderItems.length">
-	                <div class="row">
+                <div class="col-lg-12" style="min-height: 100px;">
+	                <div class="row" ng-if="model.orderItems.length">
                         <div class="col-md-3 col-md-offset-1">
                             <b>YOUR SHOPPING CART ({{model.orderItems.length}} items)</b>
                         </div>
