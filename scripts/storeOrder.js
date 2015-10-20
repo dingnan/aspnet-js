@@ -208,6 +208,9 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
         return amplify.store.sessionStorage("shoppingCart", shoppingCart);
     }
 
+    function clearShoppingCart() {
+        return amplify.store.sessionStorage("shoppingCart", null);
+    }
 
     /**
       * construct client side model
@@ -217,7 +220,8 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
         orderItems: [],
         messages: [],
         getShoppingCart: getShoppingCart,
-        storeShoppingCart: storeShoppingCart
+        storeShoppingCart: storeShoppingCart,
+        clearShoppingCart: clearShoppingCart
     };
 
     // use mock data for now :)
@@ -248,13 +252,13 @@ storeApp.controller("productListController", ['$scope', '$http', 'storeOrderMode
                 vm.orderItems.push(orderItem);
                 vm.storeShoppingCart(vm.orderItems);
             };
-            
+
         });
     }
 ]);
 
-storeApp.controller("shoppingCartController", ['$scope', '$http', 'storeOrderModel', 'settings',
-    function ($scope, $http, storeOrderModel, settings) {
+storeApp.controller("shoppingCartController", ['$scope', '$http', '$location', 'storeOrderModel', 'settings',
+    function ($scope, $http, $location, storeOrderModel, settings) {
         storeOrderModel.then(function (results) {
 
             $scope.model = results[1];
@@ -277,6 +281,11 @@ storeApp.controller("shoppingCartController", ['$scope', '$http', 'storeOrderMod
                     vm.orderItems.splice(index, 1);
                     vm.storeShoppingCart(vm.orderItems);
                 }
+            };
+
+            $scope.placeOrder = function () {
+                vm.clearShoppingCart();
+                $location.path('/orderSummary');
             };
         });
     }
