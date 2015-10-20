@@ -235,17 +235,18 @@ storeApp.controller("productListController", ['$scope', '$http', 'storeOrderMode
         
         storeOrderModel.then(function (data) {
             $scope.model = data[1];
-            $scope.productFirstRow = $scope.model.products.slice(0, 4);
-            $scope.productSecondRow = $scope.model.products.slice(4, 8);
-            $scope.model.orderItems = $scope.model.getShoppingCart();
+            var vm = $scope.model;
+            $scope.productFirstRow = vm.products.slice(0, 4);
+            $scope.productSecondRow = vm.products.slice(4, 8);
+            vm.orderItems = vm.getShoppingCart();
             $scope.addToCart = function (product) {
                 var orderItem = {
                     id: product.id,
                     title: product.title,
                     price: product.price
                 };
-                $scope.model.orderItems.push(orderItem);
-                $scope.model.storeShoppingCart($scope.model.orderItems);
+                vm.orderItems.push(orderItem);
+                vm.storeShoppingCart(vm.orderItems);
             };
             
         });
@@ -257,11 +258,13 @@ storeApp.controller("shoppingCartController", ['$scope', '$http', 'storeOrderMod
         storeOrderModel.then(function (results) {
 
             $scope.model = results[1];
-            $scope.model.orderItems = $scope.model.getShoppingCart();
+            var vm = $scope.model;
+
+            vm.orderItems = vm.getShoppingCart();
 
             $scope.totalPrice = function () {
                 var total = 0;
-                $scope.model.orderItems.forEach(function (item) {
+                vm.orderItems.forEach(function (item) {
                     total += item.price;
                 });
 
