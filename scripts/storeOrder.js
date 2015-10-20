@@ -270,6 +270,14 @@ storeApp.controller("shoppingCartController", ['$scope', '$http', 'storeOrderMod
 
                 return total;
             };
+
+            $scope.removeOrderItem = function (orderItem) {
+                var index = vm.orderItems.indexOf(orderItem);
+                if (index > -1) {
+                    vm.orderItems.splice(index, 1);
+                    vm.storeShoppingCart(vm.orderItems);
+                }
+            };
         });
     }
 ]);
