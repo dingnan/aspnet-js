@@ -200,7 +200,7 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
     
     // get shopping cart (order items) from session storage
     function getShoppingCart() {
-        return amplify.store.sessionStorage("shoppingCart");
+        return amplify.store.sessionStorage("shoppingCart") || [];
     }
     
     // set shopping cart (order items) from session storage
