@@ -197,6 +197,17 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
 
         return d.promise;
     }
+    
+    // get shopping cart (order items) from session storage
+    function getShoppingCart() {
+        return amplify.store.sessionStorage("shoppingCart");
+    }
+    
+    // set shopping cart (order items) from session storage
+    function storeShoppingCart(shoppingCart) {
+        return amplify.store.sessionStorage("shoppingCart", shoppingCart);
+    }
+
 
     /**
       * construct client side model
@@ -204,7 +215,9 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
     var model = {
         sortBy: sortBy,
         orderItems: [],
-        messages: []
+        messages: [],
+        getShoppingCart: getShoppingCart,
+        storeShoppingCart: storeShoppingCart
     };
 
     // use mock data for now :)
@@ -219,17 +232,22 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
 
 storeApp.controller("productListController", ['$scope', '$http', 'storeOrderModel',
     function ($scope, $http, storeOrderModel) {
+        
         storeOrderModel.then(function (data) {
             $scope.model = data[1];
             $scope.productFirstRow = $scope.model.products.slice(0, 4);
             $scope.productSecondRow = $scope.model.products.slice(4, 8);
-            $scope.addToCart = function(product) {
-                $scope.model.orderItems.push({
+            $scope.model.orderItems = $scope.model.getShoppingCart();
+            $scope.addToCart = function (product) {
+                var orderItem = {
                     id: product.id,
                     title: product.title,
                     price: product.price
-                });
+                };
+                $scope.model.orderItems.push(orderItem);
+                $scope.model.storeShoppingCart($scope.model.orderItems);
             };
+            
         });
     }
 ]);
@@ -239,6 +257,7 @@ storeApp.controller("shoppingCartController", ['$scope', '$http', 'storeOrderMod
         storeOrderModel.then(function (results) {
 
             $scope.model = results[1];
+            $scope.model.orderItems = $scope.model.getShoppingCart();
 
             $scope.totalPrice = function () {
                 var total = 0;
