@@ -31,12 +31,36 @@ storeApp.config(['$routeProvider', '$httpProvider', function ($routeProvider, $h
     $httpProvider.defaults.withCredentials = true;
 }]);
 
-storeApp.factory('productDataTransformer', function () {
+storeApp.factory('productDataTransformer', function() {
     return {
-        toServerModel: function (model) {
+        toServerModel: function(model) {
         },
-        toClientModel: function (model, serverData) {
+        toClientModel: function(model, serverData) {
         }
+    };
+}).factory('cacheService', function () {
+    // get shopping cart (order items) from session storage
+    function getShoppingCart() {
+        return amplify.store.sessionStorage("shoppingCart") || [];
+    }
+
+    // set shopping cart (order items) from session storage
+    function storeShoppingCart(shoppingCart) {
+        return amplify.store.sessionStorage("shoppingCart", shoppingCart);
+    }
+
+    // clear session storage
+    function clearShoppingCart() {
+        return amplify.store.sessionStorage("shoppingCart", null);
+    }
+
+    /**
+      * construct client side model
+      */
+    return {
+        getShoppingCart: getShoppingCart,
+        storeShoppingCart: storeShoppingCart,
+        clearShoppingCart: clearShoppingCart
     };
 });
 
@@ -198,30 +222,13 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
         return d.promise;
     }
     
-    // get shopping cart (order items) from session storage
-    function getShoppingCart() {
-        return amplify.store.sessionStorage("shoppingCart") || [];
-    }
-    
-    // set shopping cart (order items) from session storage
-    function storeShoppingCart(shoppingCart) {
-        return amplify.store.sessionStorage("shoppingCart", shoppingCart);
-    }
-
-    function clearShoppingCart() {
-        return amplify.store.sessionStorage("shoppingCart", null);
-    }
-
     /**
       * construct client side model
       */
     var model = {
         sortBy: sortBy,
         orderItems: [],
-        messages: [],
-        getShoppingCart: getShoppingCart,
-        storeShoppingCart: storeShoppingCart,
-        clearShoppingCart: clearShoppingCart
+        messages: []
     };
 
     // use mock data for now :)
@@ -234,15 +241,15 @@ storeApp.factory('storeOrderModel', ['productDataTransformer', '$http', 'setting
     return $q.all([q1, q2, q3]);
 }]);
 
-storeApp.controller("productListController", ['$scope', '$http', 'storeOrderModel',
-    function ($scope, $http, storeOrderModel) {
+storeApp.controller("productListController", ['$scope', '$http', 'storeOrderModel', 'cacheService',
+    function ($scope, $http, storeOrderModel, cacheService) {
         
         storeOrderModel.then(function (data) {
             $scope.model = data[1];
             var vm = $scope.model;
             $scope.productFirstRow = vm.products.slice(0, 4);
             $scope.productSecondRow = vm.products.slice(4, 8);
-            vm.orderItems = vm.getShoppingCart();
+            vm.orderItems = cacheService.getShoppingCart();
             $scope.addToCart = function (product) {
                 var orderItem = {
                     id: product.id,
@@ -250,21 +257,21 @@ storeApp.controller("productListController", ['$scope', '$http', 'storeOrderMode
                     price: product.price
                 };
                 vm.orderItems.push(orderItem);
-                vm.storeShoppingCart(vm.orderItems);
+                cacheService.storeShoppingCart(vm.orderItems);
             };
 
         });
     }
 ]);
 
-storeApp.controller("shoppingCartController", ['$scope', '$http', '$location', 'storeOrderModel', 'settings',
-    function ($scope, $http, $location, storeOrderModel, settings) {
+storeApp.controller("shoppingCartController", ['$scope', '$http', '$location', 'storeOrderModel', 'cacheService',
+    function ($scope, $http, $location, storeOrderModel, cacheService) {
         storeOrderModel.then(function (results) {
 
             $scope.model = results[1];
             var vm = $scope.model;
 
-            vm.orderItems = vm.getShoppingCart();
+            vm.orderItems = cacheService.getShoppingCart();
 
             $scope.totalPrice = function () {
                 var total = 0;
@@ -279,20 +286,20 @@ storeApp.controller("shoppingCartController", ['$scope', '$http', '$location', '
                 var index = vm.orderItems.indexOf(orderItem);
                 if (index > -1) {
                     vm.orderItems.splice(index, 1);
-                    vm.storeShoppingCart(vm.orderItems);
+                    cacheService.storeShoppingCart(vm.orderItems);
                 }
             };
 
             $scope.placeOrder = function () {
-                vm.clearShoppingCart();
+                cacheService.clearShoppingCart();
                 $location.path('/orderSummary');
             };
         });
     }
 ]);
 
-storeApp.controller('orderSummaryController', ['$scope', '$http', 'settings', 'storeOrderModel', 'productDataTransformer',
-    function ($scope, $http, settings, storeOrderModel, productDataTransformer) {
+storeApp.controller('orderSummaryController', ['$scope', '$http', 'storeOrderModel', 
+    function ($scope, $http, storeOrderModel) {
         storeOrderModel.then(function (results) {
 
             $scope.model = results[1];
