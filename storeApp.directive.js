@@ -1,4 +1,4 @@
-angular.module('storeApp')
+﻿angular.module('storeApp')
 .directive('product', function () {
     return {
         restrict: 'E',
